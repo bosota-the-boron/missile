@@ -1,0 +1,61 @@
+Armoniser le code 
+rendre logique , les déplacement des avions 
+carburant avion + misisle
+parametre meteorologique
+mise en place de la balistique 
+hitbox / rayou explosion non lineaire du missile
+contremesure 
+type d'avion
+
+
+
+
+
+
+placement rand des point p1 / c1
+grille
+
+
+
+
+
+hashtable pour le trie
+
+
+
+distance V
+position de p1 - vitesse / c1
+
+
+
+
+
+
+
+// deferencement ==  valeur pointé (* = "valeur") / malloc toujours une adresse
+// *p a une adresse du premiere element tableau 
+
+int *p = malloc(sizeof(int)* 30); //affecter la premiere adresse a p sur une serie de 30*4 otc
+int *p1 = &p[1] OU p + 1; // p1 == la deuxieme adresse (logique)
+int v1 = *(p + 1); // v1 == deuxieme valeur 
+if(v1 == *p1) // meme notation 
+  puts("v1 == p1");
+
+//malloc                     alloué priorité execution (heap) (limité ram)
+//free                      desallco (!!! x2 free == dead)
+//realloc                   modifier la taille
+
+usage : taille inconnue , tableau + struct
+
+
+verifié retour malloc null (ecriture/lecture = 0) !!!
+// taille malloc 
+
+conseil:  filtre & 0xffffff pour tous les malloc 
+  malloc(sizeof(int)*(variable & 0xffffff));
+
+variable == non signé 
+
+
+nombre signé = -/+
+nombre non signé = +
