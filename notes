@@ -7,30 +7,13 @@ hitbox / rayou explosion non lineaire du missile
 contremesure 
 type d'avion
 
-
-
-
-
-
 placement rand des point p1 / c1
 grille
 
-
-
-
-
 hashtable pour le trie
-
-
 
 distance V
 position de p1 - vitesse / c1
-
-
-
-
-
-
 
 // deferencement ==  valeur pointé (* = "valeur") / malloc toujours une adresse
 // *p a une adresse du premiere element tableau 
@@ -43,7 +26,7 @@ if(v1 == *p1) // meme notation
 
 //malloc                     alloué priorité execution (heap) (limité ram)
 //free                      desallco (!!! x2 free == dead)
-//realloc                   modifier la taille
+//realloc                   modifier la taille 
 
 usage : taille inconnue , tableau + struct
 
@@ -59,3 +42,15 @@ variable == non signé
 
 nombre signé = -/+
 nombre non signé = +
+
+
+map == format bit map / travail
+lib a check = 
+
+incidence 
+30° haut
+-15°/17.5° base
+
+today : 
+point cardiaux + check vitesse target :w
+
