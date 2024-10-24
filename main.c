@@ -63,7 +63,7 @@ void moove_missile(Entity *missile, Entity cible,float vmax_missile) {
 
         missile->x += missile->vx;
         missile->y += missile->vy;
-        // pourquoi
+        
         missile->dx = missile->vx;
         missile->dy = missile->vy;
  }
@@ -110,9 +110,9 @@ void moove_target(Entity *cible, float tvitesse) {
   cible->y += direction_y * tvitesse + 0.1;
   
   if(cible->x < 0) cible->x = 0;
-  if(cible->x > 14999) cible->x = 14999;
+  if(cible->x > 149999) cible->x = 149999;
   if(cible->y < 0) cible->y = 0;
-  if(cible->y > 14999) cible->y = 14999;
+  if(cible->y > 149999) cible->y = 149999;
 }
 
 // Deplacement autre avions 
@@ -129,7 +129,7 @@ void moove_plane(Entity *plane1, float tvitesse){
 
 // Fonction pour afficher la grille
 void afficher_grille(Entity missile, Entity cible, Entity plane1, Entity checkpoint1) {
-    const float taille = 15000.0; //150km
+    const float taille = 150000.0; //m && 150km
 
     // Effacer l'écran avant d'afficher la nouvelle grille
    // system("clear");
@@ -162,11 +162,15 @@ float eta(Entity missile, Entity cible){
   float reta = distance / vitesse;
   return reta;
 }
-
+void clearScreen()
+{
+  const char *CLEAR_SCREEN_ANSI = "\e[1;1H\e[2J";
+  printf(CLEAR_SCREEN_ANSI);
+}
 float checkpoint_plane(Entity plane1, Entity checkpoint1){
   float distance = calc_range(plane1 ,checkpoint1);
     
-};
+}
 
 
 
@@ -174,8 +178,8 @@ int main(){
   Entity missile,cible, checkpoint1, checkpoint2;
   Entity plane1;
   
-  float tvitesse = 2; // vitesse de la target
-  float vmax_missile = 5; // vitesse max missile 
+  float tvitesse = 1.2; // vitesse de la target
+  float vmax_missile = 136.1; // vitesse max missile 
   //nb_plane();rm main.o calc.o
   srand(time(NULL));
   missile.x = 74;
@@ -196,7 +200,7 @@ int main(){
   printf("Position cible : (%.2f, %.2f)\n", cible.x, cible.y);
 
   clock_t start_time = clock();
-   while(calc_range(missile, cible) >= 1.5){
+   while(calc_range(missile, cible) >= 0.5 * 1000){
     float eta_value = eta(missile, cible);
     float ms_vitesse = sqrt(pow(missile.vx, 2) + pow(missile.vy ,2));
     
@@ -214,11 +218,12 @@ int main(){
     printf("\n");
         
     //afficher_grille(missile, cible, plane1,checkpoint1);
-    printf("\nPosition du missile : %.2f/%.2f\nPosition de la target : %.2f/%.2f\nVitesse du missile : %.2f m/s\nVitesse de la cible : %.2f\nRange : %.2f km ", missile.x, missile.y, cible.x, cible.y, ms_vitesse, tvitesse, calc_range(missile, cible));
+    printf("\nPosition du missile : %.2f/%.2f\nPosition de la target : %.2f/%.2f\nVitesse du missile : %.2f m/s\nVitesse de la cible : %.2f\nRange : %.2f km ", missile.x, missile.y, cible.x, cible.y, ms_vitesse * 10, tvitesse, calc_range(missile, cible)/ 1000);
     printf("\nETA : (%.2f)\n", eta_value);
-    printf("Direction de la cible : %f\nDirection du missile : %f\n", t_angle, m_angle);
-    usleep(5500);
-    system("clear");
+    printf("Direction de la cible : %f\nDirection du missile : %f\n", t_angle * 4, m_angle * 4);
+    clearScreen();
+    usleep(55000);
+    //system("clear");
   }
   clock_t end_time = clock();
   double elapsed_time =(double)(end_time - start_time) / CLOCKS_PER_SEC;
