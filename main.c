@@ -63,6 +63,9 @@ void moove_missile(Entity *missile, Entity cible,float vmax_missile) {
 
         missile->x += missile->vx;
         missile->y += missile->vy;
+        // pourquoi
+        missile->dx = missile->vx;
+        missile->dy = missile->vy;
  }
      else {
         missile->x = cible.x;
@@ -107,9 +110,9 @@ void moove_target(Entity *cible, float tvitesse) {
   cible->y += direction_y * tvitesse + 0.1;
   
   if(cible->x < 0) cible->x = 0;
-  if(cible->x > 149) cible->x = 149;
+  if(cible->x > 14999) cible->x = 14999;
   if(cible->y < 0) cible->y = 0;
-  if(cible->y > 149) cible->y = 149;
+  if(cible->y > 14999) cible->y = 14999;
 }
 
 // Deplacement autre avions 
@@ -126,7 +129,7 @@ void moove_plane(Entity *plane1, float tvitesse){
 
 // Fonction pour afficher la grille
 void afficher_grille(Entity missile, Entity cible, Entity plane1, Entity checkpoint1) {
-    const float taille = 150.0; //150km
+    const float taille = 15000.0; //150km
 
     // Effacer l'écran avant d'afficher la nouvelle grille
    // system("clear");
@@ -171,15 +174,15 @@ int main(){
   Entity missile,cible, checkpoint1, checkpoint2;
   Entity plane1;
   
-  float tvitesse = 1.2; // vitesse de la target
+  float tvitesse = 2; // vitesse de la target
   float vmax_missile = 5; // vitesse max missile 
   //nb_plane();rm main.o calc.o
   srand(time(NULL));
   missile.x = 74;
   missile.y = 74;
   
-  cible.x = rand() % 1200;
-  cible.y = rand() % 1200;
+  cible.x = rand() % 12000;
+  cible.y = rand() % 12000;
   cible.dx = rand() % 3;
   cible.dy =rand() % 3;
   plane1.x = rand() % 120;
@@ -198,7 +201,7 @@ int main(){
     float ms_vitesse = sqrt(pow(missile.vx, 2) + pow(missile.vy ,2));
     
     //patch affichage angle 
-    double t_angle = atan2(cible.dx, cible.dy) * (180.0 / M_PI);
+    double t_angle = atan2(cible.dx - missile.dx , cible.dy - missile.dy) * (180.0 / M_PI);
     double m_angle = atan2(missile.dx, missile.dy) * (180.0 /M_PI);
     const char* t_direction = compas(t_angle); 
     const char* m_direction = compas(m_angle);
@@ -214,7 +217,7 @@ int main(){
     printf("\nPosition du missile : %.2f/%.2f\nPosition de la target : %.2f/%.2f\nVitesse du missile : %.2f m/s\nVitesse de la cible : %.2f\nRange : %.2f km ", missile.x, missile.y, cible.x, cible.y, ms_vitesse, tvitesse, calc_range(missile, cible));
     printf("\nETA : (%.2f)\n", eta_value);
     printf("Direction de la cible : %f\nDirection du missile : %f\n", t_angle, m_angle);
-    usleep(550000);
+    usleep(5500);
     system("clear");
   }
   clock_t end_time = clock();
