@@ -4,14 +4,12 @@
 
 typedef struct{
   float x,y,z;
-  enum direction{pos,neg,nul}dx,dy,dz; 
-  enum planetype{missisle, chasseur, freight, civil}type;
-  enum pcharge{explo, shrapnel,incendiare, cnul}charge;
-  float m; //masse
-  float carbu;
-  float sx,sy,sz;
   float vx,vy, vz;
   float ax,ay, az;
+  float dx,dy,dz;
+  float speed;
+  float angle;
+  float altitude;
 }Entity;
 
 
