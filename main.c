@@ -8,8 +8,6 @@
 #include "header.h"
 
 
-
-
 //weather
 //wind + pression + humidité + temperature
 
@@ -136,11 +134,15 @@ int check_collision(Entity missile, Entity cible) {
             missile.z + half_sz_missile + collision_margin >= cible.z - half_sz_cible &&
             missile.z - half_sz_missile - collision_margin <= cible.z + half_sz_cible);
 }
+
+
 int main(){
   Entity missile,cible;
+  Fragment fragments[MAX_FRAGMENTS];
+  int fragments_count = 0;
   
-  float tvitesse = 2; // vitesse de la target
-  float vmax_missile = 136.1; // vitesse max missile 
+  float tvitesse = 250.0; // vitesse de la target
+  float vmax_missile = 1361.0; // vitesse max missile 
   srand(time(NULL));
 
   cible.sx = 72.0; //Longueur;
@@ -162,7 +164,7 @@ int main(){
   cible.z = 6000.0 ;
 
   clock_t start_time = clock();
-   while(check_collision(missile, cible) == 0){
+   while(cible.m >= 0.0){
     float eta_value = eta(missile, cible);
     float ms_vitesse = calc_vitesse(missile);
      
@@ -179,16 +181,24 @@ int main(){
     moove_missile(&missile, cible, vmax_missile);
     moove_target(&cible, tvitesse);
     printf("\n");
-        
     //afficher_grille(missile, cible, plane1,checkpoint1);
     printf("\nPosition du missile : %.2f/%.2f/%.2f\nPosition de la target : %.2f/%.2f/%.2f\nVitesse du missile : %.2f m/s\nVitesse de la cible : %.2f ms\nRange : %.2f km ", missile.x, missile.y, missile.z, cible.x, cible.y, cible.z, ms_vitesse * 10, tvitesse, calc_range(missile, cible)/ 1000);
-    printf("\nETA : %.2f s\n", eta_value / 10);
+    printf("\nETA : %.2f s\n", eta_value / 100);
     printf("Direction de la cible : %f\nDirection du missile : %f\n", t_angle , m_angle);
     printf("ax : %.2f vx : %.2f\nay : %.2f vy : %.2f\naz : %.2f vz : %.2f\n", missile.ax, missile.vx, missile.ay, missile.vy, missile.az, missile.vz);
+    printf("Masse de la cible : %.2f\n", cible.m );
+    if(calc_range(missile, cible) <= 5000){
+          f_fragmentation(&missile, &cible, fragments, &fragments_count);
+           float delta_time = 0.1;
+            for (int i; i < 100; i++){
+                update_fragments(fragments, fragments_count, delta_time);
+   }
+    }
     clearScreen();
-    usleep(2000);
+    usleep(10000);//base 10000
     //system("clear");
   }
+ 
   clock_t end_time = clock();
   double elapsed_time =(double)(end_time - start_time) / CLOCKS_PER_SEC;
   
