@@ -26,50 +26,51 @@ void weather(){
 //vitesse mach 4 (4900km/h / 1361 m/s)
 //152 kg
 
-void moove_missile(Entity *missile, Entity cible,float vmax_missile) {
-    float range = calc_range(*missile, cible); //init la valeur distance == calc_range
-    
-    float prediction_x = cible.x + cible.vx * 0.5;
-    float prediction_y = cible.y + cible.vy * 0.5;
-    float prediction_z = cible.z + cible.vz * 0.5;
+void moove_missile(Entity *missile, Entity cible, float vmax_missile) {
+    float range = calc_range(*missile, cible);
 
-   // ?   
-    float prediction_range = calc_range(*missile, (Entity){prediction_x, prediction_y, prediction_z, 0, 0, 0, 0});
-    
-    // si range > vitesse == ajustement
-    if(prediction_range < calc_vitesse(*missile, cible)){
-      missile->ax = (prediction_x - missile->x) / prediction_range / 6 * vmax_missile;
-      missile->ay = (prediction_y - missile->y) / prediction_range / 6 * vmax_missile;
-      missile->az = (prediction_z - missile->z) / prediction_range / 6 * vmax_missile;
+    // Seuil pour ralentir
+    const float slow_down_threshold = 10000.0; // 10 km
+
+    // Ajustement de l'accélération
+    if (range < slow_down_threshold) {
+        // Ralentir à l'approche de la cible
+        float slow_factor = (range / slow_down_threshold); // Facteur pour ralentir
+        missile->vx = (cible.x - missile->x) / range * (vmax_missile / 10) * slow_factor; // Réduit l'accélération
+        missile->vy = (cible.y - missile->y) / range * (vmax_missile / 10) * slow_factor;
+        missile->vz = (cible.z - missile->z) / range * (vmax_missile / 10) * slow_factor;
+    } else {
+        // Comportement normal
+        if (range > 0) {
+            missile->vx = (cible.x - missile->x) / range * (vmax_missile / 10);
+            missile->vy = (cible.y - missile->y) / range * (vmax_missile / 10);
+            missile->vz = (cible.z - missile->z) / range * (vmax_missile / 10);
+        }
     }
-    else{ // comportement "normal"
-      if (range > 0){
-        missile->ax = (cible.x - missile->x) / range / 6 * vmax_missile;
-        missile->ay = (cible.y - missile->y) / range / 6 * vmax_missile;
-        missile->az = (cible.z - missile->z) / range / 6 * vmax_missile;
-     }else{ //si proche == ajust
-        missile->ax = (cible.x - missile->x) * 0.5;
-        missile->ay = (cible.y - missile->y) * 0.5;
-        missile->az = (cible.z - missile->z) * 0.5;
-     }
-    }
-    // maj vitesse
+
+    // Mise à jour de la vitesse
     missile->vx += missile->ax;
     missile->vy += missile->ay;
     missile->vz += missile->az;
 
-    //limitation vitesse
-    if(missile->vx > vmax_missile) missile->vx = vmax_missile;
-    if(missile->vy > vmax_missile) missile->vy = vmax_missile;
-    if(missile->vz > vmax_missile) missile->vz = vmax_missile;
+    // Limitation de la vitesse;
+    if (missile->vx > vmax_missile) missile->vx = vmax_missile;
+    if (missile->vy > vmax_missile) missile->vy = vmax_missile;
+    if (missile->vz > vmax_missile) missile->vz = vmax_missile;
 
+    // Mise à jour des positions
     missile->x += missile->vx;
     missile->y += missile->vy;
     missile->z += missile->vz;
 
-    //verif altitude
+    // Vérification de l'altitude
+    if (missile->z < 0) missile->z = 0;
+    if (missile->y < 0) missile->y = 0;
     if (missile->z < 0) missile->z = 0;
 }
+
+
+
 
 //Deplacement Target
 void moove_target(Entity *cible, float tvitesse) {
@@ -102,7 +103,7 @@ void moove_target(Entity *cible, float tvitesse) {
 
 float eta(Entity missile, Entity cible){
   float distance = calc_range(missile, cible);
-  float vitesse = sqrt(pow(missile.vx, 2) + pow(missile.vy, 2));
+  float vitesse = calc_vitesse(missile);
   float reta = distance / vitesse;
   return reta;
 }
@@ -116,16 +117,42 @@ float checkpoint_plane(Entity plane1, Entity checkpoint1){
     
 }
 
+int check_collision(Entity missile, Entity cible) {
+    float half_sx_missile = missile.sx / 2.0f;
+    float half_sy_missile = missile.sy / 2.0f;
+    float half_sz_missile = missile.sz / 2.0f;
 
+    float half_sx_cible = cible.sx / 2.0f;
+    float half_sy_cible = cible.sy / 2.0f;
+    float half_sz_cible = cible.sz / 2.0f;
 
+    // Ajout d'une marge pour la collision
+    float collision_margin = 10.0f; // Ajustez ce chiffre selon vos besoins
+
+    return (missile.x + half_sx_missile + collision_margin >= cible.x - half_sx_cible &&
+            missile.x - half_sx_missile - collision_margin <= cible.x + half_sx_cible &&
+            missile.y + half_sy_missile + collision_margin >= cible.y - half_sy_cible &&
+            missile.y - half_sy_missile - collision_margin <= cible.y + half_sy_cible &&
+            missile.z + half_sz_missile + collision_margin >= cible.z - half_sz_cible &&
+            missile.z - half_sz_missile - collision_margin <= cible.z + half_sz_cible);
+}
 int main(){
-  Entity missile,cible, checkpoint1, checkpoint2;
-  Entity plane1;
+  Entity missile,cible;
   
-  float tvitesse = 25; // vitesse de la target
+  float tvitesse = 2; // vitesse de la target
   float vmax_missile = 136.1; // vitesse max missile 
-  //nb_plane();rm main.o calc.o
   srand(time(NULL));
+
+  cible.sx = 72.0; //Longueur;
+  cible.sy = 79.0; //Largeur
+  cible.sz = 24.0; //Hauteur
+  cible.m = 254000.0; // masse
+
+  missile.sx =  3.650; 
+  missile.sy =  0.18;
+  missile.sz = 0.18;
+  missile.m = 157.0;
+  
   missile.x = 75000.0;
   missile.y = 75000.0;
   missile.z = 25.0;
@@ -135,11 +162,10 @@ int main(){
   cible.z = 6000.0 ;
 
   clock_t start_time = clock();
-   while((calc_range(missile, cible) >= 50) ){
+   while(calc_range(missile, cible) > 50){
     float eta_value = eta(missile, cible);
-    float ms_vitesse = sqrt(pow(missile.vx, 2) + pow(missile.vy ,2));
-    
-    //patch affichage angle 
+    float ms_vitesse = calc_vitesse(missile);
+     
     double t_angle = atan2f(cible.vy, cible.vx) * (180.0 / M_PI);
     double m_angle = atan2f(missile.vy, missile.vx) * (180.0 /M_PI);
     if (t_angle < 0) t_angle += 360;
@@ -148,7 +174,7 @@ int main(){
     const char* t_direction = compas(t_angle); 
     const char* m_direction = compas(m_angle);
     
-    if(ms_vitesse >= vmax_missile)
+    if(ms_vitesse > vmax_missile)
       ms_vitesse = vmax_missile;
     moove_missile(&missile, cible, vmax_missile);
     moove_target(&cible, tvitesse);
@@ -158,8 +184,9 @@ int main(){
     printf("\nPosition du missile : %.2f/%.2f/%.2f\nPosition de la target : %.2f/%.2f/%.2f\nVitesse du missile : %.2f m/s\nVitesse de la cible : %.2f ms\nRange : %.2f km ", missile.x, missile.y, missile.z, cible.x, cible.y, cible.z, ms_vitesse * 10, tvitesse, calc_range(missile, cible)/ 1000);
     printf("\nETA : %.2f s\n", eta_value / 10);
     printf("Direction de la cible : %f\nDirection du missile : %f\n", t_angle , m_angle);
+    printf("ax : %.2f vx : %.2f\nay : %.2f vy : %.2f\naz : %.2f vz : %.2f\n", missile.ax, missile.vx, missile.ay, missile.vy, missile.az, missile.vz);
     clearScreen();
-    usleep(25000);
+    usleep(2000);
     //system("clear");
   }
   clock_t end_time = clock();
