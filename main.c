@@ -162,7 +162,7 @@ int main(){
   cible.z = 6000.0 ;
 
   clock_t start_time = clock();
-   while(calc_range(missile, cible) > 50){
+   while(check_collision(missile, cible) == 0){
     float eta_value = eta(missile, cible);
     float ms_vitesse = calc_vitesse(missile);
      
