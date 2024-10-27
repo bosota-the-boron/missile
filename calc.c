@@ -1,7 +1,11 @@
 #include "header.h"
 #include <stdio.h>
+#include <time.h>
 #include <math.h>
+#include <stdlib.h>
+#include <unistd.h>
 
+#define MAX_FRAGMENTS 100
 
 float calc_range( Entity a,Entity b){
   return sqrtf(pow(b.x - a.x, 2) + pow(b.y - a.y, 2) + pow(b.z - a.z,2));
@@ -13,6 +17,37 @@ float calc_vitesse(Entity test){
 
 float calc_range_vitesse( Entity a,Entity b){ //ecart vitesse
   return sqrtf(pow(b.vx - a.vx, 2) + pow(b.vy - a.vy, 2)+ pow(b.vz - a.vz, 2));
+}
+
+// simulation fragmentaiton
+float f_fragmentation(Entity *missile, Entity *cible, Fragment fragments[], int *fragments_count){
+  fragments_count = 0;
+  for (int i = 0; i < MAX_FRAGMENTS; i++){
+      Fragment *frag = &fragments[i];
+      frag->x = missile->vx; //Pi du fragment
+      frag->y = missile->vy;
+      frag->z = missile->vz;
+
+      frag->vx = ((float)rand() / RAND_MAX) * 2 - 1;
+      frag->vy = ((float)rand() / RAND_MAX) * 2 - 1;
+      frag->vz = ((float)rand() / RAND_MAX) * 2 - 1;
+
+      frag->size = ((float)rand() / RAND_MAX) * 0.5 + 0.1;
+  }
+  cible->m -= ((float)rand() / RAND_MAX) * 1 + 120000;
+    if(cible->m <=0){
+      printf("cible detruite");
+    }
+    missile->m = 0;
+};
+// update fragments
+void update_fragments(Fragment fragments[], int fragments_count, float delta_time){
+  for(int i = 0; i < fragments_count * delta_time; i++){
+    fragments[i].x += fragments[i].vx * delta_time;
+    fragments[i].y += fragments[i].vy * delta_time;
+    fragments[i].z += fragments[i].vz * delta_time;
+  }
+
 }
 
 
