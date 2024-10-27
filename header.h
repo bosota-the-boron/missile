@@ -7,6 +7,8 @@ typedef struct{
   float vx,vy, vz;
   float ax,ay, az;
   float dx,dy,dz;
+  float sx,sy,sz;
+  float m;
   float speed;
   float angle;
   float altitude;

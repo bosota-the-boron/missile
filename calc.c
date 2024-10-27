@@ -6,7 +6,12 @@
 float calc_range( Entity a,Entity b){
   return sqrtf(pow(b.x - a.x, 2) + pow(b.y - a.y, 2) + pow(b.z - a.z,2));
 }
-float calc_vitesse( Entity a,Entity b){
+
+float calc_vitesse(Entity test){
+  return sqrt(pow(test.vx,2) + pow(test.vy ,2) + pow(test.vz, 2));
+}
+
+float calc_range_vitesse( Entity a,Entity b){ //ecart vitesse
   return sqrtf(pow(b.vx - a.vx, 2) + pow(b.vy - a.vy, 2)+ pow(b.vz - a.vz, 2));
 }
 
