@@ -16,6 +16,7 @@ typedef struct{
 
 typedef struct{
   float x,y,z;
+  float ax,ay,az;
   float vx,vy,vz;
   float size;
 }Fragment;
@@ -33,7 +34,9 @@ const char* compas();
 void moove_missile(Entity *missile, Entity cible,float vmax_missile);
 void moove_target(Entity *cible, float tvitesse);
 void moove_plane(Entity *plane1, float tvitesse);
-float f_fragmentation(Entity *missile, Entity *cible, Fragment fragments[], int *fragments_count);
-void update_fragments(Fragment fragments[], int fragments_count, float delta_time);
+void f_fragmentation(Entity *missile, Entity *cible, Fragment fragments[]);
+void update_fragments(Fragment *fragments, float delta_time);
+int check_collision(Entity missile, Entity cible);
+void collision_frangments(Entity missile, Entity cible, Fragment *fragments);
 #endif
 

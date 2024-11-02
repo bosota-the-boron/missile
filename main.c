@@ -5,6 +5,10 @@
 #include <unistd.h>
 #include <search.h> //chekc doc
 
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+
+
 #include "header.h"
 
 
@@ -13,6 +17,85 @@
 
 void weather(){
 
+}
+
+
+void render_map(Entity *missile) {
+    // Initialiser SDL
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+        printf("SDL ne s'initialise pas ! SDL_ERROR: %s\n", SDL_GetError());
+        return;
+    }
+
+    // Créer la fenêtre
+    SDL_Window *window = SDL_CreateWindow("Carte Stratégique", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, 0);
+    if (window == NULL) {
+        printf("La fenêtre n'est pas créée ! SDL_ERROR: %s\n", SDL_GetError());
+        SDL_Quit();
+        return;
+    }
+
+    // Créer le renderer
+    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if (renderer == NULL) {
+        printf("Le renderer ne s'est pas créé ! SDL_ERROR: %s\n", SDL_GetError());
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return;
+    }
+
+    // Charger la carte
+    SDL_Surface *mapSurface = IMG_Load("map.png");
+    if (mapSurface == NULL) {
+        printf("La carte n'est pas chargée ! SDL_ERROR: %s\n", SDL_GetError());
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return;
+    }
+
+    // Texture à partir de la carte
+    SDL_Texture *mapTexture = SDL_CreateTextureFromSurface(renderer, mapSurface);
+    SDL_FreeSurface(mapSurface);
+    if(mapTexture == NULL){
+
+    }
+
+    // Boucle principale
+    int running = 1;
+    SDL_Event event;
+    while (running) {
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                running = 0;
+            }
+        }
+
+        // Effacer l'écran
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+
+        // Calculer la position de la caméra
+        // Centrer la vue sur le missile
+        float camera_x = (float)(missile->x ); // Centrer horizontalement
+        float camera_y = (float)(missile->y ); // Centrer verticalement
+
+        // Créer un rectangle de destination pour la carte
+        SDL_Rect destRect = { -camera_x, -camera_y, 800, 600 }; // Ajuster la carte en fonction de la position du missile
+
+
+        // Afficher la texture de la carte
+        SDL_RenderCopy(renderer, mapTexture, NULL, &destRect);
+        SDL_RenderPresent(renderer);
+
+        SDL_Delay(16); // Limiter la vitesse de la boucle
+    }
+
+    // Nettoyage
+    SDL_DestroyTexture(mapTexture);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
 }
 
 
@@ -25,6 +108,8 @@ void weather(){
 //152 kg
 
 void moove_missile(Entity *missile, Entity cible, float vmax_missile) {
+    Fragment fragments[MAX_FRAGMENTS];
+    int fragments_count = 0;
     float range = calc_range(*missile, cible);
 
     // Seuil pour ralentir
@@ -65,6 +150,16 @@ void moove_missile(Entity *missile, Entity cible, float vmax_missile) {
     if (missile->z < 0) missile->z = 0;
     if (missile->y < 0) missile->y = 0;
     if (missile->z < 0) missile->z = 0;
+
+    if(calc_range(missile, cible) <= 1000000){
+          printf("DECLENCHEMENT OPPPPPPP\n");
+            usleep(500000000);
+          f_fragmentation(missile,  &cible, fragments);
+          float delta_time = 0.1;
+          update_fragments(fragments, delta_time);
+          missile->m = 0;
+         void collision_frangments(Entity missile, Entity cible, Fragment *fragments); 
+    }
 }
 
 
@@ -110,36 +205,14 @@ void clearScreen()
   const char *CLEAR_SCREEN_ANSI = "\e[1;1H\e[2J";
   printf(CLEAR_SCREEN_ANSI);
 }
-float checkpoint_plane(Entity plane1, Entity checkpoint1){
-  float distance = calc_range(plane1 ,checkpoint1);
-    
-}
 
-int check_collision(Entity missile, Entity cible) {
-    float half_sx_missile = missile.sx / 2.0f;
-    float half_sy_missile = missile.sy / 2.0f;
-    float half_sz_missile = missile.sz / 2.0f;
 
-    float half_sx_cible = cible.sx / 2.0f;
-    float half_sy_cible = cible.sy / 2.0f;
-    float half_sz_cible = cible.sz / 2.0f;
 
-    // Ajout d'une marge pour la collision
-    float collision_margin = 10.0f; // Ajustez ce chiffre selon vos besoins
-
-    return (missile.x + half_sx_missile + collision_margin >= cible.x - half_sx_cible &&
-            missile.x - half_sx_missile - collision_margin <= cible.x + half_sx_cible &&
-            missile.y + half_sy_missile + collision_margin >= cible.y - half_sy_cible &&
-            missile.y - half_sy_missile - collision_margin <= cible.y + half_sy_cible &&
-            missile.z + half_sz_missile + collision_margin >= cible.z - half_sz_cible &&
-            missile.z - half_sz_missile - collision_margin <= cible.z + half_sz_cible);
-}
 
 
 int main(){
   Entity missile,cible;
-  Fragment fragments[MAX_FRAGMENTS];
-  int fragments_count = 0;
+
   
   float tvitesse = 250.0; // vitesse de la target
   float vmax_missile = 1361.0; // vitesse max missile 
@@ -164,7 +237,7 @@ int main(){
   cible.z = 6000.0 ;
 
   clock_t start_time = clock();
-   while(cible.m >= 0.0){
+   while(cible.m >= 74000.0){
     float eta_value = eta(missile, cible);
     float ms_vitesse = calc_vitesse(missile);
      
@@ -180,6 +253,8 @@ int main(){
       ms_vitesse = vmax_missile;
     moove_missile(&missile, cible, vmax_missile);
     moove_target(&cible, tvitesse);
+    //affichage map (suivis des avion, target et missiles)
+    //render_map(&missile);
     printf("\n");
     //afficher_grille(missile, cible, plane1,checkpoint1);
     printf("\nPosition du missile : %.2f/%.2f/%.2f\nPosition de la target : %.2f/%.2f/%.2f\nVitesse du missile : %.2f m/s\nVitesse de la cible : %.2f ms\nRange : %.2f km ", missile.x, missile.y, missile.z, cible.x, cible.y, cible.z, ms_vitesse * 10, tvitesse, calc_range(missile, cible)/ 1000);
@@ -187,13 +262,7 @@ int main(){
     printf("Direction de la cible : %f\nDirection du missile : %f\n", t_angle , m_angle);
     printf("ax : %.2f vx : %.2f\nay : %.2f vy : %.2f\naz : %.2f vz : %.2f\n", missile.ax, missile.vx, missile.ay, missile.vy, missile.az, missile.vz);
     printf("Masse de la cible : %.2f\n", cible.m );
-    if(calc_range(missile, cible) <= 5000){
-          f_fragmentation(&missile, &cible, fragments, &fragments_count);
-           float delta_time = 0.1;
-            for (int i; i < 100; i++){
-                update_fragments(fragments, fragments_count, delta_time);
-   }
-    }
+   
     clearScreen();
     usleep(10000);//base 10000
     //system("clear");
@@ -203,6 +272,6 @@ int main(){
   double elapsed_time =(double)(end_time - start_time) / CLOCKS_PER_SEC;
   
   printf("\nMission de tir reussite en : (%f)", elapsed_time);
-  return 0;
+  //return 0;
 
 }
