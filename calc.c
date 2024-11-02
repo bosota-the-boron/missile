@@ -20,8 +20,15 @@ float calc_range_vitesse( Entity a,Entity b){ //ecart vitesse
 }
 
 // simulation fragmentaiton
-float f_fragmentation(Entity *missile, Entity *cible, Fragment fragments[], int *fragments_count){
-  fragments_count = 0;
+// vmx * 2 > frag  && apres 1.5 km  / vecor inertie 
+//     Masse initiale : mi (masse du missile avant fragmentation)
+//    Masse des fragments :mf (masse des fragments après fragmentation)
+//    Vitesse des fragments : vf (vitesse des fragments)
+//La perte d'inertie peut alors être exprimée comme : Δm=mi−mf
+
+
+//fonction de la fragmentation
+void f_fragmentation(Entity *missile, Entity *cible, Fragment fragments[]){
   for (int i = 0; i < MAX_FRAGMENTS; i++){
       Fragment *frag = &fragments[i];
       frag->x = missile->vx; //Pi du fragment
@@ -34,24 +41,52 @@ float f_fragmentation(Entity *missile, Entity *cible, Fragment fragments[], int 
 
       frag->size = ((float)rand() / RAND_MAX) * 0.5 + 0.1;
   }
-  cible->m -= ((float)rand() / RAND_MAX) * 1 + 120000;
-    if(cible->m <=0){
-      printf("cible detruite");
-    }
     missile->m = 0;
 };
-// update fragments
-void update_fragments(Fragment fragments[], int fragments_count, float delta_time){
-  for(int i = 0; i < fragments_count * delta_time; i++){
-    fragments[i].x += fragments[i].vx * delta_time;
-    fragments[i].y += fragments[i].vy * delta_time;
-    fragments[i].z += fragments[i].vz * delta_time;
-  }
+// update fragments (suivis des fragment apres la frag)
+void update_fragments(Fragment *fragments, float delta_time){
+    fragments->x += fragments->vx * delta_time;
+    fragments->y += fragments->vy * delta_time;
+    fragments->z += fragments->vz * delta_time; 
+}
 
+void collision_frangments(Entity missile, Entity cible, Fragment *fragments){
+  float half_fragments = fragments->size / 2.0f;
+
+  float half_sx_cible = cible.sx / 2.0f;
+  float half_sy_cible = cible.sy / 2.0f;
+  float half_sz_cible = cible.sz / 2.0f;
+
+  if(fragments->x == cible.x)
+    cible.m - 25000;
+  else if(fragments->y == cible.y)
+    cible.m - 25000;
+  else if(fragments->z == cible.z)
+    cible.m -25000;
 }
 
 
+int check_collision(Entity missile, Entity cible) {
+    float half_sx_missile = missile.sx / 2.0f;
+    float half_sy_missile = missile.sy / 2.0f;
+    float half_sz_missile = missile.sz / 2.0f;
 
+    float half_sx_cible = cible.sx / 2.0f;
+    float half_sy_cible = cible.sy / 2.0f;
+    float half_sz_cible = cible.sz / 2.0f;
+
+    // Ajout d'une marge pour la collision
+    float collision_margin = 10.0f; 
+
+    return (missile.x + half_sx_missile + collision_margin >= cible.x - half_sx_cible &&
+            missile.x - half_sx_missile - collision_margin <= cible.x + half_sx_cible &&
+            missile.y + half_sy_missile + collision_margin >= cible.y - half_sy_cible &&
+            missile.y - half_sy_missile - collision_margin <= cible.y + half_sy_cible &&
+            missile.z + half_sz_missile + collision_margin >= cible.z - half_sz_cible &&
+            missile.z - half_sz_missile - collision_margin <= cible.z + half_sz_cible);
+
+    //remplacer quelque && en || 
+}
 
 const char* compas(double angle){
   // initiliser point cardinaux
