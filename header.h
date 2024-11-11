@@ -6,7 +6,6 @@ typedef struct{
   float x,y,z;
   float vx,vy, vz;
   float ax,ay, az;
-  float dx,dy,dz;
   float sx,sy,sz;
   float m;
   float speed;
