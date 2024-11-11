@@ -108,6 +108,7 @@ void render_map(Entity *missile) {
 //152 kg
 
 void moove_missile(Entity *missile, Entity cible, float vmax_missile) {
+   
     float range = calc_range(*missile, cible);
     // Seuil pour ralentir
     const float slow_down_threshold = 10000.0; // 10 km
@@ -149,18 +150,7 @@ void moove_missile(Entity *missile, Entity cible, float vmax_missile) {
     if (missile->z < 0) missile->z = 0;
 
     //gestion de la destruction
-    if (missile->m = 0) {
-      missile->vx = 0;
-      missile->ax = 0;
-    }
-    if (missile->m = 0){
-      missile->vy = 0;
-      missile->ay = 0;
-    }
-    if (missile->m = 0){
-      missile->vz = 0;
-      missile->az = 0;
-    }
+    if(missile->destroy) return;
 
  
 }
@@ -215,7 +205,7 @@ void clearScreen()
 
 int main(){
   Entity missile,cible;
-
+  missile.destroy = 0;
    Fragment fragments[MAX_FRAGMENTS];
 
 
@@ -242,10 +232,15 @@ int main(){
   cible.z = 6000.0 ;
 
   clock_t start_time = clock();
-   while(cible.m >= 74000.0){
+   while(cible.m >= 74000.){
     float eta_value = eta(missile, cible);
     float ms_vitesse = calc_vitesse(missile);
-     
+
+    if(!missile.destroy){
+      moove_missile(&missile, cible, vmax_missile);
+    }
+    else missile.m = 0;
+    moove_target(&cible, tvitesse);
     double t_angle = atan2f(cible.vy, cible.vx) * (180.0 / M_PI);
     double m_angle = atan2f(missile.vy, missile.vx) * (180.0 /M_PI);
     if (t_angle < 0) t_angle += 360;
@@ -256,17 +251,13 @@ int main(){
     
     if(ms_vitesse > vmax_missile)
       ms_vitesse = vmax_missile;
-    moove_missile(&missile, cible, vmax_missile);
-    moove_target(&cible, tvitesse);
-       if(calc_range(missile, cible) < 50){
+    if(calc_range(missile, cible) < 50){
           //printf("DECLENCHEMENT OPPPPPPP\n");
           f_fragmentation(&missile,  &cible, fragments);
           float delta_time = 0.1;
           update_fragments(fragments, delta_time);
-          missile.m = 0;
          void collision_frangments(Entity missile, Entity cible, Fragment *fragments); 
-
-    }
+    } 
     //affichage map (suivis des avion, target et missiles)
     //render_map(&missile);
     printf("\n");
@@ -274,7 +265,7 @@ int main(){
     printf("\nPosition du missile : %.2f/%.2f/%.2f\nPosition de la target : %.2f/%.2f/%.2f\nVitesse du missile : %.2f m/s\nVitesse de la cible : %.2f ms\nRange : %.2f km ", missile.x, missile.y, missile.z, cible.x, cible.y, cible.z, ms_vitesse * 10, tvitesse, calc_range(missile, cible)/ 1000);
     printf("\nETA : %.2f s\n", eta_value / 100);
     printf("Direction de la cible : %f\nDirection du missile : %f\n", t_angle , m_angle);
-    printf("ax : %.2f vx : %.2f\nay : %.2f vy : %.2f\naz : %.2f vz : %.2f\n", missile.ax, missile.vx, missile.ay, missile.vy, missile.az, missile.vz);
+    printf(" vx : %.2f\n vy : %.2f\n vz : %.2f\n",  missile.vx, missile.vy, missile.vz);
     printf("Masse de la cible : %.2f --- Masse du missile : %.2f\n", cible.m, missile.m );
    
     clearScreen();

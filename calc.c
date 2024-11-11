@@ -41,7 +41,7 @@ void f_fragmentation(Entity *missile, Entity *cible, Fragment fragments[]){
 
       frag->size = ((float)rand() / RAND_MAX) * 0.5 + 0.1;
   }
-    missile->m = 0;
+    missile->destroy = 1;
 };
 // update fragments (suivis des fragment apres la frag)
 void update_fragments(Fragment *fragments, float delta_time){
@@ -50,21 +50,20 @@ void update_fragments(Fragment *fragments, float delta_time){
     fragments->z += fragments->vz * delta_time; 
 }
 
-void collision_frangments(Entity missile, Entity cible, Fragment *fragments){
-  float half_fragments = fragments->size / 2.0f;
 
-  float half_sx_cible = cible.sx / 2.0f;
-  float half_sy_cible = cible.sy / 2.0f;
-  float half_sz_cible = cible.sz / 2.0f;
+void collision_frangments(Entity missile, Entity cible, Fragment *fragments) {
 
-  if(fragments->x == cible.x)
-    cible.m - 25000;
-  else if(fragments->y == cible.y)
-    cible.m - 25000;
-  else if(fragments->z == cible.z)
-    cible.m -25000;
+    for (int i = 0; i < MAX_FRAGMENTS; i++) {
+        Fragment *frag = &fragments[i];
+        // Vérifiez si le fragment est en collision avec la cible
+        if (frag->x >= cible.x - cible.sx / 2 && frag->x <= cible.x + cible.sx / 2 &&
+            frag->y >= cible.y - cible.sy / 2 && frag->y <= cible.y + cible.sy / 2 &&
+            frag->z >= cible.z - cible.sz / 2 && frag->z <= cible.z + cible.sz / 2) {
+            cible.m -= 25000; // Réduisez la masse de la cible
+            
+        }
+    }
 }
-
 
 int check_collision(Entity missile, Entity cible) {
     float half_sx_missile = missile.sx / 2.0f;

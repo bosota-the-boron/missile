@@ -11,6 +11,7 @@ typedef struct{
   float speed;
   float angle;
   float altitude;
+  int destroy;
 }Entity;
 
 typedef struct{
