@@ -232,7 +232,10 @@ int main(){
   cible.z = 6000.0 ;
 
   clock_t start_time = clock();
-   while(cible.m >= 74000.){
+   while(tvitesse >= 50){
+    clock_t current_time = clock();
+    float delta_time = (float)(current_time - start_time) / CLOCKS_PER_SEC;
+    start_time = current_time;
     float eta_value = eta(missile, cible);
     float ms_vitesse = calc_vitesse(missile);
 
@@ -244,6 +247,7 @@ int main(){
       }
     }
     moove_target(&cible, tvitesse);
+    update_fragments(fragments, delta_time);
     collision_frangments(missile, cible, fragments);
     double t_angle = atan2f(cible.vy, cible.vx) * (180.0 / M_PI);
     double m_angle = atan2f(missile.vy, missile.vx) * (180.0 /M_PI);
@@ -260,20 +264,19 @@ int main(){
     printf("\n");
     //afficher_grille(missile, cible, plane1,checkpoint1);
     printf("\nPosition du missile : %.2f/%.2f/%.2f\nPosition de la target : %.2f/%.2f/%.2f\nVitesse du missile : %.2f m/s\nVitesse de la cible : %.2f ms\nRange : %.2f km ", missile.x, missile.y, missile.z, cible.x, cible.y, cible.z, ms_vitesse * 10, tvitesse, calc_range(missile, cible)/ 1000);
-    printf("\nETA : %.2f s\n", eta_value / 100);
+    printf("\nETA : %.2f s\n", eta_value / 10);
     printf("Direction de la cible : %f\nDirection du missile : %f\n", t_angle , m_angle);
     printf(" vx : %.2f\n vy : %.2f\n vz : %.2f\n",  missile.vx, missile.vy, missile.vz);
-    printf("Masse de la cible : %.2f --- Masse du missile : %.2f\n", cible.m, missile.m );
    
     clearScreen();
-    usleep(10000);//base 10000
+    usleep(100000);//base 10000
     //system("clear");
   }
  
   clock_t end_time = clock();
   double elapsed_time =(double)(end_time - start_time) / CLOCKS_PER_SEC;
   
-  printf("\nMission de tir reussite en : (%f)", elapsed_time);
+  printf("\nMission de tir reussite !!!");
   //return 0;
 
 }

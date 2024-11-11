@@ -36,9 +36,9 @@ void f_fragmentation(Entity *missile, Entity *cible, Fragment fragments[]){
       fragments[i].z = missile->z;
       fragments[i].active = 1;
 
-      frag->vx = ((float)rand() / RAND_MAX) * 2 - 1;
-      frag->vy = ((float)rand() / RAND_MAX) * 2 - 1;
-      frag->vz = ((float)rand() / RAND_MAX) * 2 - 1;
+      frag[i].vx = ((float)rand() / RAND_MAX) * 2 - 1;
+      frag[i].vy = ((float)rand() / RAND_MAX) * 2 - 1;
+      frag[i].vz = ((float)rand() / RAND_MAX) * 2 - 1;
 
       frag->size = ((float)rand() / RAND_MAX) * 0.5 + 0.1;
   }
@@ -46,9 +46,11 @@ void f_fragmentation(Entity *missile, Entity *cible, Fragment fragments[]){
 };
 // update fragments (suivis des fragment apres la frag)
 void update_fragments(Fragment *fragments, float delta_time){
-    fragments->x += fragments->vx * delta_time;
-    fragments->y += fragments->vy * delta_time;
-    fragments->z += fragments->vz * delta_time; 
+  for(int i; i < MAX_FRAGMENTS; i ++){
+    fragments[i].x += fragments[i].vx * delta_time;
+    fragments[i].y += fragments[i].vy * delta_time;
+    fragments[i].z += fragments[i].vz * delta_time; 
+  }
 }
 
 
@@ -57,15 +59,16 @@ int check_collision_fragment(Fragment frag, Entity cible) {
             frag.y >= cible.y - cible.sy / 2 && frag.y <= cible.y + cible.sy / 2 &&
             frag.z >= cible.z - cible.sz / 2 && frag.z <= cible.z + cible.sz / 2);
 }
+
 void collision_frangments(Entity missile, Entity cible, Fragment *fragments) {
 
     for (int i = 0; i < MAX_FRAGMENTS; i++) {
         Fragment *frag = &fragments[i];
-        // Vérifiez si le fragment est en collision avec la cible
-        if (check_collision_fragment(*frag, cible)) {
+        // Vérifiez si le fragment est actif avant de vérifier la collision
+        if (frag->active && check_collision_fragment(*frag, cible)) {
             cible.m -= 25000; // Réduisez la masse de la cible
-            missile.destroy = 1;           
-            frag->active = 1 ;
+            missile.destroy = 1; // Marquez le missile comme détruit
+            frag->active = 0; // Désactivez le fragment après collision
         }
     }
 }
