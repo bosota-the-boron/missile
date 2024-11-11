@@ -19,6 +19,7 @@ typedef struct{
   float ax,ay,az;
   float vx,vy,vz;
   float size;
+  int active;
 }Fragment;
 
 

@@ -31,9 +31,10 @@ float calc_range_vitesse( Entity a,Entity b){ //ecart vitesse
 void f_fragmentation(Entity *missile, Entity *cible, Fragment fragments[]){
   for (int i = 0; i < MAX_FRAGMENTS; i++){
       Fragment *frag = &fragments[i];
-      frag->x = missile->vx; //Pi du fragment
-      frag->y = missile->vy;
-      frag->z = missile->vz;
+      fragments[i].x = missile->x;
+      fragments[i].y = missile->y;
+      fragments[i].z = missile->z;
+      fragments[i].active = 1;
 
       frag->vx = ((float)rand() / RAND_MAX) * 2 - 1;
       frag->vy = ((float)rand() / RAND_MAX) * 2 - 1;
@@ -51,40 +52,28 @@ void update_fragments(Fragment *fragments, float delta_time){
 }
 
 
+int check_collision_fragment(Fragment frag, Entity cible) {
+    return (frag.x >= cible.x - cible.sx / 2 && frag.x <= cible.x + cible.sx / 2 &&
+            frag.y >= cible.y - cible.sy / 2 && frag.y <= cible.y + cible.sy / 2 &&
+            frag.z >= cible.z - cible.sz / 2 && frag.z <= cible.z + cible.sz / 2);
+}
 void collision_frangments(Entity missile, Entity cible, Fragment *fragments) {
 
     for (int i = 0; i < MAX_FRAGMENTS; i++) {
         Fragment *frag = &fragments[i];
         // Vérifiez si le fragment est en collision avec la cible
-        if (frag->x >= cible.x - cible.sx / 2 && frag->x <= cible.x + cible.sx / 2 &&
-            frag->y >= cible.y - cible.sy / 2 && frag->y <= cible.y + cible.sy / 2 &&
-            frag->z >= cible.z - cible.sz / 2 && frag->z <= cible.z + cible.sz / 2) {
+        if (check_collision_fragment(*frag, cible)) {
             cible.m -= 25000; // Réduisez la masse de la cible
-            
+            missile.destroy = 1;           
+            frag->active = 1 ;
         }
     }
 }
 
 int check_collision(Entity missile, Entity cible) {
-    float half_sx_missile = missile.sx / 2.0f;
-    float half_sy_missile = missile.sy / 2.0f;
-    float half_sz_missile = missile.sz / 2.0f;
-
-    float half_sx_cible = cible.sx / 2.0f;
-    float half_sy_cible = cible.sy / 2.0f;
-    float half_sz_cible = cible.sz / 2.0f;
-
-    // Ajout d'une marge pour la collision
-    float collision_margin = 10.0f; 
-
-    return (missile.x + half_sx_missile + collision_margin >= cible.x - half_sx_cible &&
-            missile.x - half_sx_missile - collision_margin <= cible.x + half_sx_cible &&
-            missile.y + half_sy_missile + collision_margin >= cible.y - half_sy_cible &&
-            missile.y - half_sy_missile - collision_margin <= cible.y + half_sy_cible &&
-            missile.z + half_sz_missile + collision_margin >= cible.z - half_sz_cible &&
-            missile.z - half_sz_missile - collision_margin <= cible.z + half_sz_cible);
-
-    //remplacer quelque && en || 
+    return (missile.x >= cible.x - cible.sx / 2 && missile.x <= cible.x + cible.sx / 2 &&
+            missile.y >= cible.y - cible.sy / 2 && missile.y <= cible.y + cible.sy / 2 &&
+            missile.z >= cible.z - cible.sz / 2 && missile.z <= cible.z + cible.sz / 2);
 }
 
 const char* compas(double angle){

@@ -238,9 +238,13 @@ int main(){
 
     if(!missile.destroy){
       moove_missile(&missile, cible, vmax_missile);
+      if(check_collision(missile, cible)){
+        f_fragmentation(&missile, &cible, fragments);
+        missile.destroy = 1;
+      }
     }
-    else missile.m = 0;
     moove_target(&cible, tvitesse);
+    collision_frangments(missile, cible, fragments);
     double t_angle = atan2f(cible.vy, cible.vx) * (180.0 / M_PI);
     double m_angle = atan2f(missile.vy, missile.vx) * (180.0 /M_PI);
     if (t_angle < 0) t_angle += 360;
@@ -251,13 +255,6 @@ int main(){
     
     if(ms_vitesse > vmax_missile)
       ms_vitesse = vmax_missile;
-    if(calc_range(missile, cible) < 50){
-          //printf("DECLENCHEMENT OPPPPPPP\n");
-          f_fragmentation(&missile,  &cible, fragments);
-          float delta_time = 0.1;
-          update_fragments(fragments, delta_time);
-         void collision_frangments(Entity missile, Entity cible, Fragment *fragments); 
-    } 
     //affichage map (suivis des avion, target et missiles)
     //render_map(&missile);
     printf("\n");
