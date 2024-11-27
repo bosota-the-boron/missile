@@ -24,7 +24,7 @@ void render_map(Entity *missile) {
     // Initialiser SDL
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         printf("SDL ne s'initialise pas ! SDL_ERROR: %s\n", SDL_GetError());
-        return;
+        return ;
     }
 
     // Créer la fenêtre
@@ -45,8 +45,8 @@ void render_map(Entity *missile) {
     }
 
     // Charger la carte
-    SDL_Surface *mapSurface = IMG_Load("map.png");
-    if (mapSurface == NULL) {
+    SDL_Surface *mapSurface = IMG_Load("/home/boron/Documents/workstation/missile/map.png");
+    if (!mapSurface) {
         printf("La carte n'est pas chargée ! SDL_ERROR: %s\n", SDL_GetError());
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
@@ -56,9 +56,12 @@ void render_map(Entity *missile) {
 
     // Texture à partir de la carte
     SDL_Texture *mapTexture = SDL_CreateTextureFromSurface(renderer, mapSurface);
-    SDL_FreeSurface(mapSurface);
-    if(mapTexture == NULL){
-
+    if(!mapTexture){
+      printf("Erreur de création de texture ! SDL_ERROR %s\n", SDL_GetError);
+      SDL_Surface(mapSurface);
+      SDL_DestroyRenderer(renderer);
+      SDL_DestroyWindow(window);
+      SDL_Quit();
     }
 
     // Boucle principale
@@ -67,6 +70,7 @@ void render_map(Entity *missile) {
     while (running) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
+                printf("Une Erreur  dans SDL! SDL_ERROR : %s\n", SDL_GetError());
                 running = 0;
             }
         }
@@ -74,7 +78,7 @@ void render_map(Entity *missile) {
         // Effacer l'écran
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
-
+        
         // Calculer la position de la caméra
         // Centrer la vue sur le missile
         float camera_x = (float)(missile->x ); // Centrer horizontalement
@@ -82,13 +86,13 @@ void render_map(Entity *missile) {
 
         // Créer un rectangle de destination pour la carte
         SDL_Rect destRect = { -camera_x, -camera_y, 800, 600 }; // Ajuster la carte en fonction de la position du missile
-
+    
 
         // Afficher la texture de la carte
         SDL_RenderCopy(renderer, mapTexture, NULL, &destRect);
         SDL_RenderPresent(renderer);
 
-        SDL_Delay(16); // Limiter la vitesse de la boucle
+        SDL_Delay(32); // Limiter la vitesse de la boucle
     }
 
     // Nettoyage
@@ -272,7 +276,7 @@ int main(){
     if(ms_vitesse > vmax_missile)
       ms_vitesse = vmax_missile;
     //affichage map (suivis des avion, target et missiles)
-    //render_map(&missile);
+    render_map(&missile);
     printf("\n");
     //afficher_grille(missile, cible, plane1,checkpoint1);
     printf("\nPosition du missile : %.2f/%.2f/%.2f\nPosition de la target : %.2f/%.2f/%.2f\nVitesse du missile : %.2f m/s\nVitesse de la cible : %.2f ms\nRange : %.2f km ", missile.x, missile.y, missile.z, cible.x, cible.y, cible.z, ms_vitesse * 10, tvitesse, calc_range(missile, cible)/ 1000);
