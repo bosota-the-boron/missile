@@ -160,30 +160,42 @@ void moove_missile(Entity *missile, Entity cible, float vmax_missile) {
 
 //Deplacement Target
 void moove_target(Entity *cible, float tvitesse) {
-  if (rand() % 100 < 5){ //5% de chance de chager de direction
-    cible->angle += ((float)rand() / RAND_MAX) * (M_PI / 4) - (M_PI / 8); //virage aleatoire
-  } 
-  cible->vx = cible->speed * cos(cible->angle); // mouvement horizontal(x)
-  cible->vy = cible->speed * cos(cible->angle); // y
+    // Si l'angle de direction n'est pas défini, on lui donne une valeur initiale
+    if (cible->angle == 0) {
+        cible->angle = ((float)rand() / RAND_MAX) * (M_PI / 90) - (M_PI / 180); 
+    }
 
-  if(rand() % 100 < 10){ // %10 chang altitude
-    cible->altitude += ((float)rand() / RAND_MAX) * 2 - 1; 
-  }
-  cible->z = cible->altitude < 0 ? 0 : cible->altitude ;
+    // Calculer les nouvelles vitesses basées sur l'angle
+    cible->vx = tvitesse * cos(cible->angle); // mouvement horizontal (x)
+    cible->vy = tvitesse * sin(cible->angle); // mouvement vertical (y)
 
-  cible->ax = ((float)rand() / RAND_MAX) *  2 - 1; // gestion accelaration rand axe * 3
-  cible->ay = ((float)rand() / RAND_MAX) *  2 - 1;
-  cible->az = ((float)rand() / RAND_MAX) *  2 - 1;
-  //maj accelaration
-  cible->vx = cible->ax; 
-  cible->vy = cible->ay;
-  cible->vz = cible->az;
+    // Mettre à jour la position
+    cible->x += cible->vx;
+    cible->y += cible->vy;
 
-  cible->x += cible->vx * tvitesse;
-  cible->y += cible->vy * tvitesse;
-  cible->z += cible->vz * tvitesse;
-
-  if (cible->z < 0) cible->z = 0;
+    // Vérifier les limites de la zone (par exemple, une zone de 120x120)
+    if (cible->x < 0) {
+        cible->x = 0;
+        cible->angle = M_PI - cible->angle; // Rebondir à l'intérieur
+    }
+    if (cible->x > 12000) {
+        cible->x = 12000;
+        cible->angle = M_PI - cible->angle; // Rebondir à l'intérieur
+    }
+    if (cible->y < 0) {
+        cible->y = 0;
+        cible->angle = -cible->angle; // Rebondir à l'intérieur
+    }
+    if (cible->y > 12000) {
+        cible->y = 120;
+        cible->angle = -cible->angle; // Rebondir à l'intérieur
+    }
+    
+    // Ajuster l'altitude légèrement
+    if (rand() % 100 < 5) { // 5% de chance de changer légèrement l'altitude
+        cible->altitude += ((float)rand() / RAND_MAX) * 2 - 1; // Changement aléatoire de -1 à 1
+    }
+    cible->z = cible->altitude < 0 ? 0 : cible->altitude; // Ne pas descendre en dessous de 0
 }
 
 

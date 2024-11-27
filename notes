@@ -37,20 +37,15 @@ verifié retour malloc null (ecriture/lecture = 0) !!!
 conseil:  filtre & 0xffffff pour tous les malloc 
   malloc(sizeof(int)*(variable & 0xffffff));
 
-variable == non signé 
+-----------------------------------------------------------
+
+  SDL a patch 
+  direction target a Armoniser
 
 
-nombre signé = -/+
-nombre non signé = +
 
 
-map == format bit map / travail
-lib a check = 
 
-incidence 
-30° haut
--15°/17.5° base
 
-today : 
-point cardiaux + check vitesse target :w
+gcc -o main main.c calc.c -lSDL2 -lSDL2_image -lm
 
